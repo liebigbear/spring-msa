@@ -1,0 +1,43 @@
+plugins {
+	id 'java'
+	id 'io.spring.dependency-management' version '1.1.7'  // 의존성 관리용 플러그인 추가
+}
+
+group = 'com'
+version = '1.0-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', '2025.0.0')  // Spring Cloud BOM 버전 정의
+}
+
+subprojects {
+	group = 'com.sparta.msa_exam'
+	version = '1.0.0'
+
+	apply plugin: 'java'
+	apply plugin: 'io.spring.dependency-management'
+
+	repositories {
+		mavenCentral()
+	}
+
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+		}
+	}
+
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(21)  // or 21 등 원하는 버전
+		}
+	}
+
+	test {
+		useJUnitPlatform()
+	}
+}
