@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -15,6 +18,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    //상품 등록
     @Transactional
     public ResponseProduct saveProduct(RequestProduct requestProduct) {
         Product product = Product.builder()
@@ -29,5 +33,18 @@ public class ProductService {
                 .name(savedProduct.getName())
                 .supply_price(savedProduct.getPrice())
                 .build();
+    }
+
+    //상품 목록 조회
+    public List<ResponseProduct> getProducts() {
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .map(product -> ResponseProduct.builder()
+                        .productId(product.getProductId())
+                        .name(product.getName())
+                        .supply_price(product.getPrice())
+                        .build()
+                ).collect(Collectors.toList());
     }
 }
