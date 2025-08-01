@@ -36,8 +36,8 @@ public class ProductService {
     }
 
     //상품 목록 조회
-    public List<ResponseProduct> getProducts() {
-        List<Product> products = productRepository.findAll();
+    public List<ResponseProduct> getProducts(List<Long> ids) {
+        List<Product> products = productRepository.findAllById(ids);
 
         return products.stream()
                 .map(product -> ResponseProduct.builder()
