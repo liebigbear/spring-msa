@@ -20,14 +20,13 @@ public class OrderProduct {
     private Orders orders;
 
     private Long productId;
-    private int quantity;
-    private Integer price;
 
     @Builder
-    public OrderProduct(Orders orders, Long productId, int quantity, Integer price) {
-        this.orders = orders;
+    public OrderProduct(Long productId) {
         this.productId = productId;
-        this.quantity = quantity;
-        this.price = price;
+    }
+
+    public void setOrder(Orders orders) {
+        this.orders = orders;
     }
 }

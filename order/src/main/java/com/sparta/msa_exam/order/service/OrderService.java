@@ -1,31 +1,49 @@
 package com.sparta.msa_exam.order.service;
 
+import com.sparta.msa_exam.order.client.ProductClient;
 import com.sparta.msa_exam.order.dto.OrderSaveRequest;
+import com.sparta.msa_exam.order.dto.OrderSaveResponse;
+import com.sparta.msa_exam.order.dto.ProductResponse;
+import com.sparta.msa_exam.order.entity.OrderProduct;
+import com.sparta.msa_exam.order.entity.Orders;
 import com.sparta.msa_exam.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final ProductClient productClient;
 
+    // 주문 추가 메서드
+    @Transactional
+    public OrderSaveResponse saveOrder(OrderSaveRequest requestDto) {
 
-    public void saveOrder(OrderSaveRequest requestDto) {
+        // Product 서비스에서 상품 정보 조회 (MSA 통신)
+        List<ProductResponse> productResponses = productClient.getProductByIds(requestDto.getOrderIds());
 
-        // TODO: 1. RestTemplate을 사용하여 Product 서비스에서 상품 정보 조회 (MSA 통신)
-        // - 요청 DTO에서 상품 ID 목록을 추출합니다.
-        // - RestTemplate으로 product 서비스의 'GET /products?ids=...' API를 호출합니다.
+        // Order 및 OrderProduct 엔티티 생성
+        Orders order = new Orders(new ArrayList<>());
 
-        // TODO: 2. 비즈니스 로직 처리
-        // - 조회된 상품 정보를 바탕으로 주문 총액을 계산합니다.
-        // - 재고 확인 및 차감 로직이 필요하다면 여기에 구현합니다.
+        productResponses.forEach(product -> {
+            OrderProduct orderProduct = OrderProduct.builder()
+                    .productId(product.getProductId())
+                    .build();
+            order.addOrderProduct(orderProduct);
+        });
 
-        // TODO: 3. Order 및 OrderProduct 엔티티 생성
-        // - 계산된 총액으로 Order 엔티티를 빌더 패턴으로 생성합니다.
-        // - 요청된 상품 목록(items)을 순회하며 OrderProduct 엔티티를 생성하고, Order에 추가합니다.
+        orderRepository.save(order);
+        return OrderSaveResponse.fromOrder(order);
     }
 }

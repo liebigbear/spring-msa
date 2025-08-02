@@ -19,12 +19,17 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts = new ArrayList<>();
 
-    private Double totalPrice;
     @Builder
-    public Orders(Double totalPrice) {
-        this.totalPrice = totalPrice;
+    public Orders(List<OrderProduct> orderProducts) {
+        this.orderProducts = orderProducts;
+    }
+
+    //주문 상품 추가
+    public void addOrderProduct(OrderProduct orderProduct) {
+        orderProducts.add(orderProduct);
+        orderProduct.setOrder(this);
     }
 }
