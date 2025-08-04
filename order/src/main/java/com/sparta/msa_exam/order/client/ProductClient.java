@@ -11,4 +11,7 @@ import java.util.List;
 public interface ProductClient {
     @GetMapping("/products")
     List<ProductResponse> getProductByIds(@RequestParam("ids") List<Long> ids);
+
+    @GetMapping("/products/error-path")
+    boolean fallbackTest();
 }

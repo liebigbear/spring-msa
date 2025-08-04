@@ -7,6 +7,7 @@ import com.sparta.msa_exam.order.dto.ProductResponse;
 import com.sparta.msa_exam.order.entity.OrderProduct;
 import com.sparta.msa_exam.order.entity.Orders;
 import com.sparta.msa_exam.order.repository.OrderRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,14 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
 
+    //주문 추가 API 호출 실패
+    public OrderSaveResponse fallbackSaveOrder(OrderSaveRequest orderSaveRequest, Throwable throwable) {
+        String message = "잠시 후에 주문 추가를 요청 해주세요.";
+        return OrderSaveResponse.error(message);
+    }
+
     // 주문 추가 메서드
+    @CircuitBreaker(name = "order", fallbackMethod = "fallbackSaveOrder")
     @Transactional
     public OrderSaveResponse saveOrder(OrderSaveRequest requestDto) {
 
